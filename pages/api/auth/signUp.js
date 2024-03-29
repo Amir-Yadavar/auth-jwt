@@ -1,6 +1,6 @@
 import userModel from '@/models/User'
 import connectToDB from '@/configs/db.js'
-import { hashedPass } from '@/utils/auth'
+import { generateToken, hashedPass } from '@/utils/auth'
 
 export default async (req, res) => {
     if (req.method !== "POST") {
@@ -27,13 +27,15 @@ export default async (req, res) => {
         }
 
         // hashPass
-        const hashedPassword =await hashedPass(password)
+        const hashedPassword = await hashedPass(password)
 
 
         // token
+
+        const token = generateToken({ email })
         // create
         await userModel.create({ firstName, lastName, userName, email, password: hashedPassword, role: "USER" })
-        return res.json({ message: 'create successfully ..' })
+        return res.json({ message: 'create successfully ..', token })
     } catch (error) {
         console.log("signup api err ..", error);
     }
