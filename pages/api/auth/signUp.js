@@ -1,6 +1,7 @@
 import userModel from '@/models/User'
 import connectToDB from '@/configs/db.js'
 import { generateToken, hashedPass } from '@/utils/auth'
+import { serialize } from 'cookie'
 
 export default async (req, res) => {
     if (req.method !== "POST") {
@@ -33,9 +34,18 @@ export default async (req, res) => {
         // token
 
         const token = generateToken({ email })
+
+        const user = await userModel.find({})
         // create
-        await userModel.create({ firstName, lastName, userName, email, password: hashedPassword, role: "USER" })
-        return res.json({ message: 'create successfully ..', token })
+        await userModel.create({
+            firstName,
+            lastName,
+            userName,
+            email,
+            password: hashedPassword,
+            role: user.length > 0 ? "USER" : "ADMIN"
+        })
+        return res.setHeader("Set-Cookie", serialize('token', token, { maxAge: 60 * 60 * 24, httpOnly: true })).json({ message: 'create successfully ..' })
     } catch (error) {
         console.log("signup api err ..", error);
     }
