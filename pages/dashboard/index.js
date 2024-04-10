@@ -8,4 +8,12 @@ function Dashboard() {
   );
 }
 
+export async function getServerSideProps(context) {
+
+  console.log(context.req.cookies);
+  return {
+    props: {}
+  }
+}
+
 export default Dashboard;

@@ -10,10 +10,8 @@ export default async (req, res) => {
 
     try {
         connectToDB()
-
         const { identifier, password } = req.body
-
-        const user = userModel.findOne({ $or: [{ userName: identifier }, { email: identifier }] })
+        const user = await userModel.findOne({ $or: [{ userName: identifier }, { email: identifier }] })
 
         if (!identifier.trim() || !password.trim()) {
             return res.status(422).json({ message: "the input required .." })
@@ -37,7 +35,7 @@ export default async (req, res) => {
         return res
             .setHeader("Set-Cookie", serialize("token", token, {
                 httpOnly: true,
-                maxAge: 60 * 60 * 24
+                maxAge: 60 * 60 * 24,
             }))
             .status(200)
             .json({ message: "sign in successfully .. " })
