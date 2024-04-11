@@ -11,9 +11,8 @@ export default async (req, res) => {
     try {
         connectToDB()
         const { token } = req.cookies
-
         if (!token) {
-            return res.status(401).json({ message: "you are not login .." })
+            return res.status(401).json({ message: "you are not login ..." })
         }
 
         const isValidToken = verifyToken(token)

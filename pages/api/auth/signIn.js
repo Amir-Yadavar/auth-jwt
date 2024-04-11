@@ -36,6 +36,7 @@ export default async (req, res) => {
             .setHeader("Set-Cookie", serialize("token", token, {
                 httpOnly: true,
                 maxAge: 60 * 60 * 24,
+                path:"/"
             }))
             .status(200)
             .json({ message: "sign in successfully .. " })
