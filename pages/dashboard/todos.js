@@ -1,8 +1,4 @@
-import connectToDB from "@/configs/db";
-import userModel from "@/models/User";
-import { verifyToken } from "@/utils/auth";
-import { redirect } from "next/dist/server/api-utils";
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
@@ -10,18 +6,16 @@ config.autoAddCss = false;
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
-function Dashboard({ user }) {
+function Todolist() {
   return (
-
-
     <>
+      <h1>Next-Todos</h1>
 
-
-      {/* <div className="alert">
+      <div className="alert">
         <p>⚠ Please add a task first!</p>
-      </div> */}
+      </div>
 
-      <div className="container-todo">
+      <div className="container">
         <div className="form-container">
           <div className="add-form">
             <input
@@ -36,7 +30,7 @@ function Dashboard({ user }) {
         </div>
         <div className="head">
           <div className="date">
-            <p>{user.firstName} - {user.lastName}</p>
+            <p>{`user.name`}</p>
           </div>
           <div className="add">
             <svg
@@ -78,37 +72,7 @@ function Dashboard({ user }) {
         </div>
       </div>
     </>
-
   );
 }
 
-export async function getServerSideProps(context) {
-  const { token } = context.req.cookies
-
-  connectToDB()
-
-  if (!token) {
-    return {
-      redirect: {
-        destination: "/signin"
-      }
-    }
-  }
-
-  const isValidToken = verifyToken(token)
-
-  if (!isValidToken) {
-    return {
-      redirect: {
-        destination: '/signin'
-      }
-    }
-  }
-
-  const userInfo = await userModel.findOne({ email: isValidToken.email }, "-password -__v")
-  return {
-    props: { user: JSON.parse(JSON.stringify(userInfo)) }
-  }
-}
-
-export default Dashboard;
+export default Todolist;

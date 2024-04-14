@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-
+import swal from 'sweetalert'
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 config.autoAddCss = false;
@@ -11,8 +11,11 @@ import {
   faSolarPanel,
   faBars,
 } from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from "next/router";
 
 function Index() {
+
+  const router = useRouter()
 
   const [isLogged, setIsLogged] = useState(false)
   const [userInfo, setUserInfo] = useState("")
@@ -29,6 +32,22 @@ function Index() {
 
     userLogged()
   }, [])
+
+  const signOutHandler = async () => {
+    const res = await fetch('/api/auth/signOut')
+    const data = await res.json()
+
+    if (res.status === 200) {
+      swal({
+        title: "sign out successfully",
+        text: "Have a good time ..",
+        icon: "success",
+        button: "ok"
+      })
+      setIsLogged(false)
+      router.replace('/')
+    }
+  }
 
   return (
     <div className="container">
@@ -48,7 +67,7 @@ function Index() {
                 </Link>
               </li>
               <li>
-                <Link href="#">
+                <Link href="#" onClick={signOutHandler}>
                   <span>
                     <FontAwesomeIcon icon={faSignOut} />
                   </span>
