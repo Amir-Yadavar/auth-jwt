@@ -21,8 +21,8 @@ export default async (req, res) => {
     const userInfo = await userModel.findOne({ email: isValidToken.email })
 
     if (req.method === "POST") {
-        const { title, user } = req.body
-        if (!title.trim() || !user.trim()) {
+        const { title } = req.body
+        if (!title.trim()) {
             return res.status(422).json({ message: "the all item required .." })
         }
 

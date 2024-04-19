@@ -2,34 +2,72 @@ import connectToDB from "@/configs/db";
 import userModel from "@/models/User";
 import { verifyToken } from "@/utils/auth";
 import { redirect } from "next/dist/server/api-utils";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 config.autoAddCss = false;
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { modelTodo } from "@/models/Todo";
 
-function Dashboard({ user }) {
+function Dashboard({ user, todos }) {
+
+  const [showInput, setShowInput] = useState(false)
+
+  const [inputValue, setInputValue] = useState("")
+
+  const [allTodo, setAllTodo] = useState([...todos])
+
+  const getAllTodo = async () => {
+    const res = await fetch('/api/todo')
+    const data = await res.json()
+    setAllTodo(data)
+  }
+
+
+
+  // addBtnTodoHandler 
+
+  const addBtnTodoHandler = async () => {
+    if (inputValue) {
+      const res = await fetch('/api/todo', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ title: inputValue })
+      })
+
+      if (res.status === 200) {
+        setInputValue("")
+        setShowInput(false)
+        getAllTodo()
+      }
+
+      console.log(res);
+    }
+  }
+
   return (
 
 
     <>
 
 
-      {/* <div className="alert">
-        <p>⚠ Please add a task first!</p>
-      </div> */}
-
       <div className="container-todo">
-        <div className="form-container">
+        <div className="form-container" style={{ display: `${showInput ? "block" : "none"}` }}>
           <div className="add-form">
             <input
               id="input"
               type="text"
               placeholder="Type your To-Do works..."
+              value={inputValue}
+              onChange={(e) => {
+                setInputValue(e.target.value)
+              }}
             />
-            <button type="submit" id="submit">
+            <button type="submit" id="submit" onClick={addBtnTodoHandler}>
               ADD
             </button>
           </div>
@@ -38,7 +76,7 @@ function Dashboard({ user }) {
           <div className="date">
             <p>{user.firstName} - {user.lastName}</p>
           </div>
-          <div className="add">
+          <div className="add" onClick={(e) => setShowInput(true)}>
             <svg
               width="2rem"
               height="2rem"
@@ -62,17 +100,20 @@ function Dashboard({ user }) {
         <div className="pad">
           <div id="todo">
             <ul id="tasksContainer">
-              <li>
-                <span className="mark">
-                  <input type="checkbox" className="checkbox" />
-                </span>
-                <div className="list">
-                  <p>{`Todo.title`}</p>
-                </div>
-                <span className="delete">
-                  <FontAwesomeIcon icon={faTrash} />
-                </span>
-              </li>
+              {allTodo && allTodo.map(todo => (
+                <li key={todo._id}>
+                  <span className="mark">
+                    <input type="checkbox" className="checkbox" />
+                  </span>
+                  <div className="list">
+                    <p>{todo.title}</p>
+                  </div>
+                  <span className="delete">
+                    <FontAwesomeIcon icon={faTrash} />
+                  </span>
+                </li>
+              ))}
+
             </ul>
           </div>
         </div>
@@ -106,8 +147,16 @@ export async function getServerSideProps(context) {
   }
 
   const userInfo = await userModel.findOne({ email: isValidToken.email }, "-password -__v")
+  console.log(userInfo);
+
+  const allTodo = await modelTodo.find({ user: userInfo._id })
+  console.log(allTodo);
+
   return {
-    props: { user: JSON.parse(JSON.stringify(userInfo)) }
+    props: {
+      user: JSON.parse(JSON.stringify(userInfo)),
+      todos: JSON.parse(JSON.stringify(allTodo))
+    }
   }
 }
 
