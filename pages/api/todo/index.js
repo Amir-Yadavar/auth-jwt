@@ -44,5 +44,15 @@ export default async (req, res) => {
         return res.status(200).json(allTodo)
     }
 
+    if (req.method === "DELETE") {
+        const { id } = req.body
+
+        await modelTodo.findOneAndDelete({ _id: id })
+
+        res.json({ message: "Delete todo successfully .." })
+    }
+
+   
+
     res.json({ message: "wlc to todo .." })
 }

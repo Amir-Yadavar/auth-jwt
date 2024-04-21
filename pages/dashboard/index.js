@@ -10,8 +10,10 @@ config.autoAddCss = false;
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { modelTodo } from "@/models/Todo";
+import { useRouter } from "next/router";
 
 function Dashboard({ user, todos }) {
+  const router = useRouter()
 
   const [showInput, setShowInput] = useState(false)
 
@@ -47,6 +49,40 @@ function Dashboard({ user, todos }) {
 
       console.log(res);
     }
+  }
+
+
+  // removeTodoHandler
+
+  const removeTodoHandler = async (todoId) => {
+
+    const res = await fetch("/api/todo", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ id: todoId })
+    })
+
+    if (res.status === 200) {
+      getAllTodo()
+    }
+
+  }
+
+
+  // signOut Handler
+
+  const signOutHandler = async () => {
+    try {
+      const res = await fetch('/api/auth/signOut')
+      if (res.status === 200) {
+        router.replace('/signin')
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
   }
 
   return (
@@ -94,7 +130,7 @@ function Dashboard({ user, todos }) {
             </svg>
           </div>
           <div className="time">
-            <a href="#">Logout</a>
+            <a href="#" onClick={signOutHandler}>Logout</a>
           </div>
         </div>
         <div className="pad">
@@ -108,7 +144,7 @@ function Dashboard({ user, todos }) {
                   <div className="list">
                     <p>{todo.title}</p>
                   </div>
-                  <span className="delete">
+                  <span className="delete" onClick={() => removeTodoHandler(todo._id)}>
                     <FontAwesomeIcon icon={faTrash} />
                   </span>
                 </li>
